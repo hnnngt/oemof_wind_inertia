@@ -372,3 +372,55 @@ def parameter_as_dict(system, exclude_none=True):
 
     flow_data.update(node_data)
     return flow_data
+
+def calc_inertia_constant(om):
+    """
+        calculates the inertia flows
+    """
+    # before calculating the inertia constant series the result function has to be called.
+    result_dict = om.results()
+
+    for k in result_dict:
+        # add inertia values
+        for (o, i) in om.flows:
+            if k[0] == om.flows[o,i].label[0] and om.flows[o,i].inertia is not None:
+                result_dict[k]['sequences']['inertia'] = om.flows[o,i].inertia.inertia_constant
+                result_dict[k]['sequences']['apparent_power'] = om.flows[o,i].inertia.apparent_power
+
+            else:
+                result_dict[k]['sequences']['inertia'] = 0
+                result_dict[k]['sequences']['apparent_power'] = 0
+
+        for idx in result_dict[k]['sequences'].index:
+            if result_dict[k]['sequences'].loc[idx, 'flow'] == 0:
+                result_dict[k]['sequences'].loc[idx, 'inertia'] = 0
+                result_dict[k]['sequences'].loc[idx, 'apparent_power'] = 0
+
+    return result_dict
+
+def calc_system_inertia_constant(om):
+    # before calculating the power system inertia constant series the calc_inertia_constant function has to be called.
+    result_dict = calc_inertia_constant(om)
+
+    system_inertia_constant = []
+
+    for idx in result_dict[list(result_dict.keys())[0]]['sequences'].index:
+        numerator = []
+        denominator = []
+        for k in result_dict:
+            numerator.append(result_dict[k]['sequences'].loc[idx, 'inertia'] *  result_dict[k]['sequences'].loc[idx, 'apparent_power'])
+            denominator.append(result_dict[k]['sequences'].loc[idx, 'apparent_power'])
+        numerator = sum(numerator)
+        denominator =  sum(denominator)
+
+        if denominator != 0:
+            system_inertia_constant.append(numerator/denominator)
+        else:
+            system_inertia_constant.append(0)
+
+
+
+    df = pd.DataFrame({'system_inertia_constant': system_inertia_constant}, index=om.es.timeindex)
+    df.fillna(0, inplace=True)
+
+    return df

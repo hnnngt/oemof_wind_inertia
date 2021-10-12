@@ -156,3 +156,29 @@ class NonConvex:
             self._calculate_max_up_down()
 
         return self._max_up_down
+
+class Inertia:
+    """
+        Parameters
+        ----------
+        moment_of_inertia : bla
+        inertia_constant : bla
+    """
+    def __init__(self, inertia_constant=0, apparent_power=0):
+
+        self.inertia_constant = inertia_constant
+        self.apparent_power = apparent_power
+
+        self._check_negative_value()
+        #self._return_value()
+
+    def _check_negative_value(self):
+        if self.inertia_constant < 0:
+            e1 = ("The inertia constant can not be below zero.")
+            raise AttributeError(e1)
+        elif self.apparent_power < 0:
+            e2 = ("The apparent power can not be below zero.")
+            raise AttributeError(e2)
+
+    #def _return_value(self):
+    #    return self.inertia_constant

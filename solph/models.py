@@ -93,7 +93,6 @@ class BaseModel(po.ConcreteModel):
                                     i not in self._constraint_groups]
 
         self.flows = self.es.flows()
-
         self.solver_results = None
         self.dual = None
         self.rc = None
@@ -230,6 +229,11 @@ class BaseModel(po.ConcreteModel):
 
         return self
 
+    def calc_system_inertia_constant(self):
+        """
+        """
+        return processing.calc_system_inertia_constant(self)
+
 
 class Model(BaseModel):
     """ An  energy system model for operational and investment
@@ -319,7 +323,6 @@ class Model(BaseModel):
                         self.flow[o, i, t].setub(
                             self.flows[o, i].max[t] *
                             self.flows[o, i].nominal_value)
-
                     if not self.flows[o, i].nonconvex:
                         for t in self.TIMESTEPS:
                             self.flow[o, i, t].setlb(

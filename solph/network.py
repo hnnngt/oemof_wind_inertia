@@ -159,9 +159,9 @@ class Flow(on.Edge):
         # information afterwards when creating objects.
 
         super().__init__()
-
+        # added new scalar inertia
         scalars = ['nominal_value', 'summed_max', 'summed_min',
-                   'investment', 'nonconvex', 'integer']
+                   'investment', 'nonconvex', 'integer', 'inertia']
         sequences = ['fix', 'variable_costs', 'min', 'max']
         dictionaries = ['positive_gradient', 'negative_gradient']
         defaults = {'variable_costs': 0,
